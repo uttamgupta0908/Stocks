@@ -7,7 +7,7 @@ import { ExploreScreen } from '../features/explore/ExploreScreen';
 
 export type AppStackParamList = {
     Main: undefined;
-    ProductDetails: { id?: string };
+    ProductDetails: { symbol: string };
     ViewAll: { category?: string };
 };
 
@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export function AppNavigation() {
     return (
-        
+
         <Stack.Navigator
             screenOptions={{
                 headerShown: false,
@@ -41,7 +41,7 @@ export function AppNavigation() {
                 name="ViewAll"
                 component={ViewAllScreen}
                 options={({ route }) => ({
-                    
+
                     title: route.params?.category ?? 'Stocks',
                 })}
             />
