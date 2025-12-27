@@ -10,11 +10,10 @@ import {
     ScrollView,
 } from 'react-native';
 import { useWatchlist } from './context/WatchlistContext';
-import { StockListItem } from '../../shared/components/StockListItem';
 import { FilterChip } from '../../shared/components/FilterChip';
 import { useNavigation } from '@react-navigation/native';
 import { WatchlistItem } from './types';
-import { WatchlistSkeleton } from './components/WatchlistSkeleton';
+import { WatchlistStockItem } from './components/WatchlistStockItem';
 import { CustomAlert } from '../../shared/components/CustomAlert';
 
 const FILTER_CATEGORIES = ['All Stocks', 'Tech', 'Finance', 'Health'];
@@ -27,7 +26,6 @@ export const WatchlistScreen = () => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [activeFilter, setActiveFilter] = useState('All Stocks');
-    const [isRefreshing, setIsRefreshing] = useState(true);
     const [alertConfig, setAlertConfig] = useState<{
         visible: boolean;
         title: string;
@@ -40,12 +38,6 @@ export const WatchlistScreen = () => {
         onConfirm: () => { },
     });
     const navigation = useNavigation<any>();
-
-    // Simulate initial loading for UX
-    React.useEffect(() => {
-        const timer = setTimeout(() => setIsRefreshing(false), 800);
-        return () => clearTimeout(timer);
-    }, []);
 
     // Default to first list on load
     React.useEffect(() => {
@@ -150,18 +142,12 @@ export const WatchlistScreen = () => {
     );
 
     const renderItem = ({ item }: { item: WatchlistItem }) => (
-        <StockListItem
-            symbol={item.symbol}
-            name={item.name}
-            // Note: Real app would fetch live price here using a batch hook
-            price="-"
+        <WatchlistStockItem
+            item={item}
             onPress={() => navigation.navigate('ProductDetails', { symbol: item.symbol })}
-            showRemoveButton={true}
             onRemovePress={() => handleRemoveStock(item.symbol)}
         />
     );
-
-    if (isRefreshing) return <WatchlistSkeleton />;
 
     return (
         <View className="flex-1 bg-background dark:bg-slate-900">

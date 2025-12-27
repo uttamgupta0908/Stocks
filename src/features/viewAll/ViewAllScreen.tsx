@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, FlatList, ActivityIndicator, ScrollView, Text } from 'react-native';
+import { View, FlatList, ScrollView, Text } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { useExploreData } from '../explore/hooks/useExploreData';
 import { StockListItem } from '../../shared/components/StockListItem';
 import { FilterChip } from '../../shared/components/FilterChip';
 import { useWatchlist } from '../watchlist/context/WatchlistContext';
 import { StockTicker } from '../../shared/types/stocks.types';
-import { ViewAllSkeleton } from './components/ViewAllSkeleton';
+import { StockListItemSkeleton } from '../../shared/components/StockListItemSkeleton';
 
 type RootStackParamList = {
     ViewAll: { category: string };
@@ -19,13 +19,9 @@ export const ViewAllScreen = () => {
     const navigation = useNavigation<any>();
     const { category } = route.params; // "Top Gainers" or "Top Losers"
     const [activeFilter, setActiveFilter] = useState('All Stocks');
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedSymbol, setSelectedSymbol] = useState('');
 
     const { data, isLoading } = useExploreData();
     const { watchlists, addToWatchlist } = useWatchlist();
-
-    if (isLoading) return <ViewAllSkeleton />;
 
     let listData: StockTicker[] = [];
     if (category === 'Top Gainers') {
@@ -45,7 +41,16 @@ export const ViewAllScreen = () => {
     };
 
     return (
+        
         <View className="flex-1 bg-background dark:bg-slate-900">
+            <View className="px-4 pt-4 pb-2 bg-white dark:bg-slate-800">
+  <Text className="text-2xl font-bold text-slate-900 dark:text-white">
+    {category}
+  </Text>
+  <Text className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+    Market movers today
+  </Text>
+</View>
             {/* Filter Chips */}
             <View className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 py-3 px-4">
                 <ScrollView
@@ -64,22 +69,30 @@ export const ViewAllScreen = () => {
             </View>
 
             {/* Stock List */}
-            <FlatList
-                data={listData}
-                keyExtractor={(item) => item.ticker}
-                renderItem={({ item }) => (
-                    <StockListItem
-                        symbol={item.ticker}
-                        name={item.ticker} // Name is not in this endpoint, use ticker
-                        price={item.price}
-                        change={item.change_amount}
-                        changePercent={item.change_percentage}
-                        onPress={() => navigation.navigate('ProductDetails', { symbol: item.ticker })}
-                        showAddButton={true}
-                        onAddPress={() => handleAddToWatchlist(item.ticker)}
-                    />
-                )}
-            />
+            {isLoading ? (
+                <ScrollView>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                        <StockListItemSkeleton key={i} />
+                    ))}
+                </ScrollView>
+            ) : (
+                <FlatList
+                    data={listData}
+                    keyExtractor={(item) => item.ticker}
+                    renderItem={({ item }) => (
+                        <StockListItem
+                            symbol={item.ticker}
+                            name={item.ticker} // Name is not in this endpoint, use ticker
+                            price={item.price}
+                            change={item.change_amount}
+                            changePercent={item.change_percentage}
+                            onPress={() => navigation.navigate('ProductDetails', { symbol: item.ticker })}
+                            showAddButton={true}
+                            onAddPress={() => handleAddToWatchlist(item.ticker)}
+                        />
+                    )}
+                />
+            )}
         </View>
     );
 };

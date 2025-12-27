@@ -6,6 +6,9 @@ import {
   CompanyOverview,
   SearchResult,
   TimeSeriesResponse,
+  WeeklyTimeSeriesResponse,
+  MonthlyTimeSeriesResponse,
+  GlobalQuoteResponse,
 } from '../types/stocks.types';
 
 const BASE_URL = 'https://www.alphavantage.co/query';
@@ -67,14 +70,97 @@ export const stockApi = {
     return data.bestMatches || [];
   },
 
-  getDailyTimeSeries: async (symbol: string): Promise<TimeSeriesResponse> => {
+  getDailyTimeSeries: async (symbol: string, outputsize: 'compact' | 'full' = 'compact'): Promise<TimeSeriesResponse> => {
     const response = await apiClient.get('', {
       params: {
         function: 'TIME_SERIES_DAILY',
+        symbol,
+        outputsize,
+        apikey: ALPHA_VANTAGE_API_KEY,
+      },
+    });
+    return handleApiResponse(response);
+  },
+
+  getWeeklyTimeSeries: async (symbol: string): Promise<WeeklyTimeSeriesResponse> => {
+    const response = await apiClient.get('', {
+      params: {
+        function: 'TIME_SERIES_WEEKLY',
         symbol,
         apikey: ALPHA_VANTAGE_API_KEY,
       },
     });
     return handleApiResponse(response);
+  },
+
+  getMonthlyTimeSeries: async (symbol: string): Promise<MonthlyTimeSeriesResponse> => {
+    const response = await apiClient.get('', {
+      params: {
+        function: 'TIME_SERIES_MONTHLY',
+        symbol,
+        apikey: ALPHA_VANTAGE_API_KEY,
+      },
+    });
+    return handleApiResponse(response);
+  },
+
+  getGlobalQuote: async (symbol: string): Promise<GlobalQuoteResponse> => {
+    const response = await apiClient.get('', {
+      params: {
+        function: 'GLOBAL_QUOTE',
+        symbol,
+        apikey: ALPHA_VANTAGE_API_KEY,
+      },
+    });
+    return handleApiResponse(response);
+  },
+};
+
+/**
+ * Helper functions for Indian market symbols
+ */
+export const symbolUtils = {
+  /**
+   * Format symbol for BSE (Bombay Stock Exchange)
+   * Example: "RELIANCE" -> "RELIANCE.BSE"
+   */
+  formatBSESymbol: (symbol: string): string => {
+    // Remove .BSE if already present to avoid duplication
+    const cleanSymbol = symbol.replace(/\.BSE$/i, '');
+    return `${cleanSymbol.toUpperCase()}.BSE`;
+  },
+
+  /**
+   * Format symbol for NSE (National Stock Exchange) - if supported
+   * Note: Alpha Vantage primarily supports BSE format for Indian stocks
+   */
+  formatNSESymbol: (symbol: string): string => {
+    const cleanSymbol = symbol.replace(/\.NSE$/i, '');
+    return `${cleanSymbol.toUpperCase()}.NSE`;
+  },
+
+  /**
+   * Check if symbol is an Indian market symbol
+   */
+  isIndianMarketSymbol: (symbol: string): boolean => {
+    return /\.(BSE|NSE)$/i.test(symbol);
+  },
+
+  /**
+   * Get clean symbol without exchange suffix
+   */
+  getCleanSymbol: (symbol: string): string => {
+    return symbol.replace(/\.(BSE|NSE)$/i, '');
+  },
+
+  /**
+   * Format symbol for Alpha Vantage API
+   * For Indian stocks, ensures BSE format
+   */
+  formatForAPI: (symbol: string, forceBSE: boolean = false): string => {
+    if (forceBSE && !symbolUtils.isIndianMarketSymbol(symbol)) {
+      return symbolUtils.formatBSESymbol(symbol);
+    }
+    return symbol.toUpperCase();
   },
 };

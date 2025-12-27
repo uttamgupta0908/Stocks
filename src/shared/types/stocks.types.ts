@@ -95,3 +95,60 @@ export interface TimeSeriesResponse {
   };
   "Time Series (Daily)": TimeSeriesData;
 }
+
+export interface WeeklyTimeSeriesData {
+  [date: string]: {
+    "1. open": string;
+    "2. high": string;
+    "3. low": string;
+    "4. close": string;
+    "5. volume": string;
+  };
+}
+
+export interface WeeklyTimeSeriesResponse {
+  "Meta Data": {
+    "1. Information": string;
+    "2. Symbol": string;
+    "3. Last Refreshed": string;
+    "4. Time Zone": string;
+  };
+  "Weekly Time Series": WeeklyTimeSeriesData;
+}
+
+export interface MonthlyTimeSeriesData {
+  [date: string]: {
+    "1. open": string;
+    "2. high": string;
+    "3. low": string;
+    "4. close": string;
+    "5. volume": string;
+  };
+}
+
+export interface MonthlyTimeSeriesResponse {
+  "Meta Data": {
+    "1. Information": string;
+    "2. Symbol": string;
+    "3. Last Refreshed": string;
+    "4. Time Zone": string;
+  };
+  "Monthly Time Series": MonthlyTimeSeriesData;
+}
+
+export interface GlobalQuote {
+  "01. symbol": string;
+  "02. open": string;
+  "03. high": string;
+  "04. low": string;
+  "05. price": string;
+  "06. volume": string;
+  "07. latest trading day": string;
+  "08. previous close": string;
+  "09. change": string;
+  "10. change percent": string;
+}
+
+export interface GlobalQuoteResponse {
+  "Global Quote": GlobalQuote;
+}

@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TabNavigation } from './TabNavigation';
 import { ProductDetailsScreen } from '../features/product/ProductDetailsScreen';
 import { ViewAllScreen } from '../features/viewAll/ViewAllScreen';
+import { ExploreScreen } from '../features/explore/ExploreScreen';
 
 export type AppStackParamList = {
     Main: undefined;
@@ -14,6 +15,7 @@ const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export function AppNavigation() {
     return (
+        
         <Stack.Navigator
             screenOptions={{
                 headerShown: false,
@@ -28,6 +30,7 @@ export function AppNavigation() {
                 options={{ headerShown: false }}
             />
 
+
             <Stack.Screen
                 name="ProductDetails"
                 component={ProductDetailsScreen}
@@ -38,7 +41,7 @@ export function AppNavigation() {
                 name="ViewAll"
                 component={ViewAllScreen}
                 options={({ route }) => ({
-                    headerShown: true,
+                    
                     title: route.params?.category ?? 'Stocks',
                 })}
             />

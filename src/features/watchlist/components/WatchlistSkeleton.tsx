@@ -34,7 +34,7 @@ export const WatchlistSkeleton = () => {
 
             {/* List */}
             <ScrollView showsVerticalScrollIndicator={false}>
-                {[1, 2, 3, 4, 5, 6].map((i) => (
+                {[1, 2].map((i) => (
                     <StockListItemSkeleton key={i} />
                 ))}
             </ScrollView>
