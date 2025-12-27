@@ -21,8 +21,10 @@ import { StockCardSkeleton } from '../../shared/components/StockCardSkeleton';
 import { TrendingUp, CircleDollarSign, Flame, Sun, Moon } from 'lucide-react-native';
 import { stockApi } from '../../shared/services/stocks.api';
 import { CompanyLogo } from '../../shared/components/CompanyLogo';
+import { useNavigation } from '@react-navigation/native';
 
-export const ExploreScreen = ({ navigation }: any) => {
+export const ExploreScreen = () => {
+    const navigation = useNavigation();
     const { colorScheme, toggleColorScheme } = useColorScheme();
     const { data, isLoading, error, refetch } = useExploreData();
 
@@ -55,7 +57,7 @@ export const ExploreScreen = ({ navigation }: any) => {
     }, [searchQuery]);
 
     const handleStockPress = (item: StockTicker) => {
-        navigation.navigate('ProductDetails', { symbol: item.ticker });
+        navigation.navigate('ProductDetails', { id: item.id });
     };
 
     const renderSection = (title: string, sectionData: StockTicker[] | undefined, isLoading: boolean) => (
@@ -96,14 +98,14 @@ export const ExploreScreen = ({ navigation }: any) => {
     );
 
     const renderSearchResults = () => {
-        // if (searchLoading) { 
-        return (
-            <View className="px-4 mb-5">
-                {[1, 2, 3].map((i) => (
-                    <StockListItemSkeleton key={i} />
-                ))}
-            </View>
-        );
+        // if (searchLoading) {
+        //     return (
+        //         <View className="px-4 mb-5">
+        //             {[1, 2, 3].map((i) => (
+        //                 <StockListItemSkeleton key={i} />
+        //             ))}
+        //         </View>
+        //     );
         // }
 
         if (isSearching && searchResults.length === 0) {
