@@ -11,22 +11,20 @@ import { useColorScheme } from 'nativewind';
 import { useExploreData } from './hooks/useExploreData';
 import { StockCard } from './components/StockCard';
 import { StatisticsCard } from './components/StatisticsCard';
-import { useNavigation } from '@react-navigation/native';
 import { StockTicker } from '../../shared/types/stocks.types';
 import { ErrorState } from '../../shared/components/ErrorState';
 import { EmptyState } from '../../shared/components/EmptyState';
-import { ExploreSkeleton } from './components/ExploreSkeleton';
 import { StockListItemSkeleton } from '../../shared/components/StockListItemSkeleton';
+import { StockCardSkeleton } from '../../shared/components/StockCardSkeleton';
 
 
 import { TrendingUp, CircleDollarSign, Flame, Sun, Moon } from 'lucide-react-native';
 import { stockApi } from '../../shared/services/stocks.api';
 import { CompanyLogo } from '../../shared/components/CompanyLogo';
 
-export const ExploreScreen = () => {
+export const ExploreScreen = ({ navigation }: any) => {
     const { colorScheme, toggleColorScheme } = useColorScheme();
     const { data, isLoading, error, refetch } = useExploreData();
-    const navigation = useNavigation<any>();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -60,42 +58,58 @@ export const ExploreScreen = () => {
         navigation.navigate('ProductDetails', { symbol: item.ticker });
     };
 
-    const renderSection = (title: string, sectionData: StockTicker[] | undefined) => (
+    const renderSection = (title: string, sectionData: StockTicker[] | undefined, isLoading: boolean) => (
         <View className="mb-6">
             <View className="flex-row justify-between items-center mb-4 px-4">
                 <Text className="text-xl font-bold text-gray-900 dark:text-white">{title}</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('ViewAll', { category: title })}>
-                    <Text className="text-primary font-semibold text-sm">View All</Text>
-                </TouchableOpacity>
-            </View>
-            <FlatList
-                horizontal
-                data={sectionData?.slice(0, 5)}
-                renderItem={({ item }) => (
-                    <StockCard item={item} onPress={() => handleStockPress(item)} />
+                {!isLoading && (
+                    <TouchableOpacity onPress={() => navigation.navigate('ViewAll', { category: title })}>
+                        <Text className="text-primary font-semibold text-sm">View All</Text>
+                    </TouchableOpacity>
                 )}
-                keyExtractor={(item) => item.ticker}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 16 }}
-            />
+            </View>
+            {isLoading ? (
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 16 }}
+
+                >
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <StockCardSkeleton key={i} />
+                    ))}
+                </ScrollView>
+            ) : (
+                <FlatList
+                    horizontal
+                    data={sectionData?.slice(0, 5)}
+                    renderItem={({ item }) => (
+                        <StockCard item={item} onPress={() => handleStockPress(item)} />
+                    )}
+                    keyExtractor={(item) => item.ticker}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 16 }}
+                />
+
+            )}
         </View>
     );
 
     const renderSearchResults = () => {
-        if (searchLoading) {
-            return (
-                <View className="px-4 mb-5">
-                    {[1, 2, 3].map((i) => (
-                        <StockListItemSkeleton key={i} />
-                    ))}
-                </View>
-            );
-        }
+        // if (searchLoading) { 
+        return (
+            <View className="px-4 mb-5">
+                {[1, 2, 3].map((i) => (
+                    <StockListItemSkeleton key={i} />
+                ))}
+            </View>
+        );
+        // }
 
         if (isSearching && searchResults.length === 0) {
             return <EmptyState fullScreen={false} title="No Stocks Found" />;
         }
-
+        console.log("searchResults", searchResults)
         return (
             <View className="bg-white dark:bg-slate-800 rounded-2xl p-2 mb-5 mx-4 shadow-sm">
                 {searchResults.map((item) => (
@@ -115,15 +129,15 @@ export const ExploreScreen = () => {
                         </View>
                     </TouchableOpacity>
                 ))}
+
             </View>
         );
     };
 
-    if (isLoading) return <ExploreSkeleton />;
     if (error) return <ErrorState message={error.message} onRetry={refetch} />;
 
     return (
-        <ScrollView className="flex-1 bg-background dark:bg-slate-900">
+        <ScrollView className="flex-1 bg-background dark:bg-slate-900" showsVerticalScrollIndicator={false}>
             {/* Header */}
             <View className="px-4 pt-6 pb-4 flex-row justify-between items-center">
                 <View>
@@ -173,20 +187,21 @@ export const ExploreScreen = () => {
             </ScrollView>
 
             {/* Search Bar */}
-            <View className="px-4 mb-4">
+            <View className="px-4 mb-4" >
                 <TextInput
                     className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-gray-200 dark:border-slate-700 text-base text-gray-900 dark:text-white"
                     placeholder="Search stocks (e.g. IBM)"
                     placeholderTextColor="#9CA3AF"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+
                 />
             </View>
 
             {isSearching || searchLoading ? renderSearchResults() : (
                 <>
-                    {renderSection('Top Gainers', data?.top_gainers)}
-                    {renderSection('Top Losers', data?.top_losers)}
+                    {renderSection('Top Gainers', data?.top_gainers, isLoading)}
+                    {renderSection('Top Losers', data?.top_losers, isLoading)}
                 </>
             )}
         </ScrollView>
